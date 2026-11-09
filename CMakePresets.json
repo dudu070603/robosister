@@ -1,0 +1,85 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "default",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+		    "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
+            "cacheVariables": {
+                "DM_ID_CONFIG_MODE": "OFF"
+            }
+        },
+        {
+            "name": "Debug",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "ARM_FOUR_AXIS_BENCH": "ON"
+            }
+        },
+        {
+            "name": "DmIdConfig",
+            "inherits": "Debug",
+            "cacheVariables": {
+                "DM_ID_CONFIG_MODE": "ON"
+            }
+        },
+        {
+            "name": "BenchDebug",
+            "inherits": "Debug",
+            "cacheVariables": {
+                "ARM_FOUR_AXIS_BENCH": "ON"
+            }
+        },
+        {
+            "name": "Release",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "ARM_FOUR_AXIS_BENCH": "ON"
+            }
+        },
+        {
+            "name": "VehicleDebug",
+            "inherits": "Debug",
+            "cacheVariables": {
+                "ARM_FOUR_AXIS_BENCH": "OFF"
+            }
+        },
+        {
+            "name": "VehicleRelease",
+            "inherits": "Release",
+            "cacheVariables": {
+                "ARM_FOUR_AXIS_BENCH": "OFF"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "DmIdConfig",
+            "configurePreset": "DmIdConfig"
+        },
+        {
+            "name": "Debug",
+            "configurePreset": "Debug"
+        },
+        {
+            "name": "BenchDebug",
+            "configurePreset": "BenchDebug"
+        },
+        {
+            "name": "Release",
+            "configurePreset": "Release"
+        },
+        {
+            "name": "VehicleDebug",
+            "configurePreset": "VehicleDebug"
+        },
+        {
+            "name": "VehicleRelease",
+            "configurePreset": "VehicleRelease"
+        }
+    ]
+}

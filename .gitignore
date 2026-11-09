@@ -1,0 +1,39 @@
+# 构建输出目录
+build/
+firmware_disabled/
+cmake-build-*/
+Testing/
+
+# 构建产物与中间文件
+*.elf
+*.axf
+*.map
+*.bin
+*.hex
+*.o
+*.obj
+*.d
+*.su
+
+# CLion / JetBrains
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# CubeMX 生成物与备份
+.mxproject
+*_save
+MXTmpFiles/
+*.bak
+
+# 系统杂项
+.DS_Store
+Thumbs.db
+*~
+
+# 本地Python测试缓存
+__pycache__/
+*.py[cod]
