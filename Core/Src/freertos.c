@@ -27,7 +27,10 @@
 /* USER CODE BEGIN Includes */
 #include "can_frame.h"
 #include "arm_task.h"
+#include "chassis_task.h"
 #include "dm_id_config_task.h"
+#include "task_ins.h"
+#include "vehicle_state_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -70,13 +73,6 @@ const osThreadAttr_t CAN2_Sending_Service_attributes = {
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityHigh,
 };
-/* Definitions for DJI_Motor_Service */
-osThreadId_t DJI_Motor_ServiceHandle;
-const osThreadAttr_t DJI_Motor_Service_attributes = {
-  .name = "DJI_Motor_Service",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityHigh,
-};
 /* Definitions for can1_send_fifo */
 osMessageQueueId_t can1_send_fifoHandle;
 const osMessageQueueAttr_t can1_send_fifo_attributes = {
@@ -105,7 +101,6 @@ const osSemaphoreAttr_t CAN2CountingSem_attributes = {
 
 void can1_sending_service(void *argument);
 void can2_sending_service(void *argument);
-void DJI_motor_service(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -154,18 +149,25 @@ void MX_FREERTOS_Init(void) {
   CAN1_Sending_ServiceHandle = osThreadNew(can1_sending_service, NULL, &CAN1_Sending_Service_attributes);
 
   /* creation of CAN2_Sending_Service */
-#if !DM_ID_CONFIG_MODE
   CAN2_Sending_ServiceHandle = osThreadNew(can2_sending_service, NULL, &CAN2_Sending_Service_attributes);
-
-  /* creation of DJI_Motor_Service */
-  DJI_Motor_ServiceHandle = osThreadNew(DJI_motor_service, NULL, &DJI_Motor_Service_attributes);
-#endif
 
   /* USER CODE BEGIN RTOS_THREADS */
 #if DM_ID_CONFIG_MODE
   if (!osThreadNew(dm_id_config_task, NULL, &arm_attributes)) Error_Handler();
 #else
   if (!osThreadNew(arm_control_task, NULL, &arm_attributes)) Error_Handler();
+#if (!ARM_FOUR_AXIS_BENCH && !YAW_SUSPENDED_BENCH) || CHASSIS_SUSPENDED_BENCH
+  static const osThreadAttr_t chassis_attributes = { .name="Chassis", .stack_size=3072, .priority=osPriorityAboveNormal };
+  if (!osThreadNew(chassis_task, NULL, &chassis_attributes)) Error_Handler();
+#endif
+#if VEHICLE_SAFETY_ENABLED && !ARM_FOUR_AXIS_BENCH && !CHASSIS_SUSPENDED_BENCH && !YAW_SUSPENDED_BENCH
+  // Sensor polling remains below the motor/remote owner. Each task blocks on
+  // its period; health evaluation only consumes bounded snapshots.
+  static const osThreadAttr_t ins_attributes = { .name="INS", .stack_size=4096, .priority=osPriorityNormal };
+  static const osThreadAttr_t vehicle_attributes = { .name="VehicleHealth", .stack_size=3072, .priority=osPriorityAboveNormal };
+  if (!osThreadNew(ins_task, NULL, &ins_attributes) ||
+      !osThreadNew(vehicle_state_task, NULL, &vehicle_attributes)) Error_Handler();
+#endif
 #endif
   /* USER CODE END RTOS_THREADS */
 
@@ -209,24 +211,6 @@ __weak void can2_sending_service(void *argument)
     osDelay(1);
   }
   /* USER CODE END can2_sending_service */
-}
-
-/* USER CODE BEGIN Header_DJI_motor_service */
-/**
-* @brief Function implementing the DJI_Motor_Service thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_DJI_motor_service */
-__weak void DJI_motor_service(void *argument)
-{
-  /* USER CODE BEGIN DJI_motor_service */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END DJI_motor_service */
 }
 
 /* Private application code --------------------------------------------------*/

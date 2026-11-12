@@ -6,17 +6,24 @@
             "hidden": true,
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/${presetName}",
-		    "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
+            "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
             "cacheVariables": {
-                "DM_ID_CONFIG_MODE": "OFF"
+                "DM_ID_CONFIG_MODE": "OFF",
+                "ARM_MOTOR_JOG_TEST": "OFF"
             }
         },
         {
             "name": "Debug",
             "inherits": "default",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "ARM_FOUR_AXIS_BENCH": "ON"
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "ArmMotorJog",
+            "inherits": "Debug",
+            "cacheVariables": {
+                "ARM_MOTOR_JOG_TEST": "ON"
             }
         },
         {
@@ -27,36 +34,18 @@
             }
         },
         {
-            "name": "BenchDebug",
-            "inherits": "Debug",
-            "cacheVariables": {
-                "ARM_FOUR_AXIS_BENCH": "ON"
-            }
-        },
-        {
             "name": "Release",
             "inherits": "default",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "ARM_FOUR_AXIS_BENCH": "ON"
-            }
-        },
-        {
-            "name": "VehicleDebug",
-            "inherits": "Debug",
-            "cacheVariables": {
-                "ARM_FOUR_AXIS_BENCH": "OFF"
-            }
-        },
-        {
-            "name": "VehicleRelease",
-            "inherits": "Release",
-            "cacheVariables": {
-                "ARM_FOUR_AXIS_BENCH": "OFF"
+                "CMAKE_BUILD_TYPE": "Release"
             }
         }
     ],
     "buildPresets": [
+        {
+            "name": "ArmMotorJog",
+            "configurePreset": "ArmMotorJog"
+        },
         {
             "name": "DmIdConfig",
             "configurePreset": "DmIdConfig"
@@ -66,20 +55,8 @@
             "configurePreset": "Debug"
         },
         {
-            "name": "BenchDebug",
-            "configurePreset": "BenchDebug"
-        },
-        {
             "name": "Release",
             "configurePreset": "Release"
-        },
-        {
-            "name": "VehicleDebug",
-            "configurePreset": "VehicleDebug"
-        },
-        {
-            "name": "VehicleRelease",
-            "configurePreset": "VehicleRelease"
         }
     ]
 }
